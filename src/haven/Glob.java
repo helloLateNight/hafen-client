@@ -36,7 +36,6 @@ public class Glob {
     public MCache map;
     public Session sess;
     public Party party;
-    public Map<String, CAttr> cattr = new HashMap<String, CAttr>();
     public Color lightamb = null, lightdif = null, lightspc = null;
     public Color olightamb = null, olightdif = null, olightspc = null;
     public Color tlightamb = null, tlightdif = null, tlightspc = null;
@@ -46,6 +45,7 @@ public class Glob {
     public long lchange = -1;
     public Indir<Resource> sky1 = null, sky2 = null;
     public double skyblend = 0.0;
+    private final Map<String, CAttr> cattr = new HashMap<String, CAttr>();
     private Map<Indir<Resource>, Object> wmap = new HashMap<Indir<Resource>, Object>();
     
     public Glob(Session sess) {
@@ -62,8 +62,8 @@ public class Glob {
     }
 
     public static class CAttr {
-	String nm;
-	int base, comp;
+	public final String nm;
+	public int base, comp;
 	
 	public CAttr(String nm, int base, int comp) {
 	    this.nm = nm.intern();
@@ -289,19 +289,36 @@ public class Glob {
 	return(((MapView)((PView.WidgetContext)rl.state().get(PView.ctx)).widget()).amb);
     }
 
+    public CAttr getcattr(String nm) {
+	synchronized(cattr) {
+	    CAttr a = cattr.get(nm);
+	    if(a == null) {
+		a = new CAttr(nm, 0, 0);
+		cattr.put(nm, a);
+	    }
+	    return(a);
+	}
+    }
+
+    public void cattr(String nm, int base, int comp) {
+	synchronized(cattr) {
+	    CAttr a = cattr.get(nm);
+	    if(a == null) {
+		a = new CAttr(nm, base, comp);
+		cattr.put(nm, a);
+	    } else {
+		a.update(base, comp);
+	    }
+	}
+    }
+
     public void cattr(Message msg) {
 	synchronized(cattr) {
 	    while(!msg.eom()) {
 		String nm = msg.string();
 		int base = msg.int32();
 		int comp = msg.int32();
-		CAttr a = cattr.get(nm);
-		if(a == null) {
-		    a = new CAttr(nm, base, comp);
-		    cattr.put(nm, a);
-		} else {
-		    a.update(base, comp);
-		}
+		cattr(nm, base, comp);
 	    }
 	}
     }
