@@ -237,8 +237,8 @@ public class GLRender implements Render, Disposable {
 					buf.put(((HeapBuffer)bufs[i]).buf);
 				}
 				buf.flip();
-				gl.glBufferData(GL.GL_ARRAY_BUFFER, jdsz, buf, GL3.GL_STREAM_DRAW);
 				Tracker.bufdata(GL.GL_ARRAY_BUFFER, jdsz);
+				gl.glBufferData(GL.GL_ARRAY_BUFFER, jdsz, buf, GL3.GL_STREAM_DRAW);
 			    }
 			});
 		}
@@ -498,12 +498,12 @@ public class GLRender implements Render, Disposable {
 	gl.glReadBuffer(fc.dbufs[n]);
 	gl.glReadPixels(area.ul.x, gly, sz.x, sz.y, GLTexture.texefmt1(fmt, fmt, null), GLTexture.texefmt2(fmt, fmt), 0);
 	gl.bglCreate(new GLFence(env, cgl -> {
-		    cgl.glBindBuffer(GL3.GL_PIXEL_PACK_BUFFER, pbo.glid());
 		    Tracker.bindbuf(pbo, GL3.GL_PIXEL_PACK_BUFFER);
+		    cgl.glBindBuffer(GL3.GL_PIXEL_PACK_BUFFER, pbo.glid());
 		    ByteBuffer data = Utils.mkbbuf(fmt.size() * area.area()).order(ByteOrder.nativeOrder());
 		    cgl.glGetBufferSubData(GL3.GL_PIXEL_PACK_BUFFER, 0, fmt.size() * area.area(), data);
-		    cgl.glBindBuffer(GL3.GL_PIXEL_PACK_BUFFER, 0);
 		    Tracker.bindbuf(null, GL3.GL_PIXEL_PACK_BUFFER);
+		    cgl.glBindBuffer(GL3.GL_PIXEL_PACK_BUFFER, 0);
 		    pbo.dispose();
 		    GLException.checkfor(cgl, env);
 		    data.rewind();
@@ -550,12 +550,12 @@ public class GLRender implements Render, Disposable {
 	    throw(new NotImplemented("texture-get for " + img.tex.getClass()));
 	}
 	gl.bglCreate(new GLFence(env, cgl -> {
-		    cgl.glBindBuffer(GL3.GL_PIXEL_PACK_BUFFER, pbo.glid());
 		    Tracker.bindbuf(pbo, GL3.GL_PIXEL_PACK_BUFFER);
+		    cgl.glBindBuffer(GL3.GL_PIXEL_PACK_BUFFER, pbo.glid());
 		    ByteBuffer data = Utils.mkbbuf(dsz).order(ByteOrder.nativeOrder());
 		    cgl.glGetBufferSubData(GL3.GL_PIXEL_PACK_BUFFER, 0, dsz, data);
-		    cgl.glBindBuffer(GL3.GL_PIXEL_PACK_BUFFER, 0);
 		    Tracker.bindbuf(null, GL3.GL_PIXEL_PACK_BUFFER);
+		    cgl.glBindBuffer(GL3.GL_PIXEL_PACK_BUFFER, 0);
 		    pbo.dispose();
 		    GLException.checkfor(cgl, env);
 		    data.rewind();

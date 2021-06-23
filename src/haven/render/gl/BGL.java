@@ -267,7 +267,7 @@ public abstract class BGL {
 
     public void glBindBuffer(final int target, final ID buffer) {
 	add(new Command() {
-		public void run(GL3 gl) {gl.glBindBuffer(target, (buffer == null)?0:buffer.glid()); Tracker.bindbuf(buffer, target);}
+		public void run(GL3 gl) {Tracker.bindbuf(buffer, target); gl.glBindBuffer(target, (buffer == null)?0:buffer.glid());}
 	    });
     }
 
@@ -328,7 +328,7 @@ public abstract class BGL {
     public void glBufferData(final int target, final long size, Buffer data, final int usage) {
 	final BufState ds = new BufState(data);
 	add(new Command() {
-		public void run(GL3 gl) {ds.restore(); gl.glBufferData(target, size, ds.buf, usage); Tracker.bufdata(target, size);}
+		public void run(GL3 gl) {Tracker.bufdata(target, size); ds.restore(); gl.glBufferData(target, size, ds.buf, usage);}
 	    });
     }
 
@@ -510,19 +510,19 @@ public abstract class BGL {
 
     public void glDrawElementsInstanced(final int mode, final int count, final int type, final long indices, final int primcount) {
 	add(new Command() {
-		public void run(GL3 gl) {gl.glDrawElementsInstanced(mode, count, type, indices, primcount); Tracker.bufuse(GL.GL_ELEMENT_ARRAY_BUFFER, indices + (GLRender.glfmtsize(type) * count));}
+		public void run(GL3 gl) {Tracker.bufuse(GL.GL_ELEMENT_ARRAY_BUFFER, indices + (GLRender.glfmtsize(type) * count)); gl.glDrawElementsInstanced(mode, count, type, indices, primcount);}
 	    });
     }
 
     public void glDrawElements(final int mode, final int count, final int type, final long indices) {
 	add(new Command() {
-		public void run(GL3 gl) {gl.glDrawElements(mode, count, type, indices); Tracker.bufuse(GL.GL_ELEMENT_ARRAY_BUFFER, indices + (GLRender.glfmtsize(type) * count));}
+		public void run(GL3 gl) {Tracker.bufuse(GL.GL_ELEMENT_ARRAY_BUFFER, indices + (GLRender.glfmtsize(type) * count)); gl.glDrawElements(mode, count, type, indices);}
 	    });
     }
 
     public void glDrawRangeElements(final int mode, final int start, final int end, final int count, final int type, final long indices) {
 	add(new Command() {
-		public void run(GL3 gl) {gl.glDrawRangeElements(mode, start, end, count, type, indices); Tracker.bufuse(GL.GL_ELEMENT_ARRAY_BUFFER, indices + (GLRender.glfmtsize(type) * count));}
+		public void run(GL3 gl) {Tracker.bufuse(GL.GL_ELEMENT_ARRAY_BUFFER, indices + (GLRender.glfmtsize(type) * count)); gl.glDrawRangeElements(mode, start, end, count, type, indices);}
 	    });
     }
 
@@ -808,25 +808,25 @@ public abstract class BGL {
 
     public void glVertexAttribPointer(final ID location, final int size, final int type, final boolean normalized, final int stride, final long pointer) {
 	add(new Command() {
-		public void run(GL3 gl) {gl.glVertexAttribPointer(location.glid(), size, type, normalized, stride, pointer);}
+		public void run(GL3 gl) {Tracker.bufuse(GL.GL_ARRAY_BUFFER, pointer); gl.glVertexAttribPointer(location.glid(), size, type, normalized, stride, pointer);}
 	    });
     }
 
     public void glVertexAttribPointer(final ID location, final int offset, final int size, final int type, final boolean normalized, final int stride, final long pointer) {
 	add(new Command() {
-		public void run(GL3 gl) {gl.glVertexAttribPointer(location.glid() + offset, size, type, normalized, stride, pointer); Tracker.bufuse(GL.GL_ARRAY_BUFFER, pointer);}
+		public void run(GL3 gl) {Tracker.bufuse(GL.GL_ARRAY_BUFFER, pointer); gl.glVertexAttribPointer(location.glid() + offset, size, type, normalized, stride, pointer);}
 	    });
     }
 
     public void glVertexAttribIPointer(final ID location, final int size, final int type, final int stride, final long pointer) {
 	add(new Command() {
-		public void run(GL3 gl) {gl.glVertexAttribIPointer(location.glid(), size, type, stride, pointer); Tracker.bufuse(GL.GL_ARRAY_BUFFER, pointer);}
+		public void run(GL3 gl) {Tracker.bufuse(GL.GL_ARRAY_BUFFER, pointer); gl.glVertexAttribIPointer(location.glid(), size, type, stride, pointer);}
 	    });
     }
 
     public void glVertexAttribIPointer(final ID location, final int offset, final int size, final int type, final int stride, final long pointer) {
 	add(new Command() {
-		public void run(GL3 gl) {gl.glVertexAttribIPointer(location.glid() + offset, size, type, stride, pointer); Tracker.bufuse(GL.GL_ARRAY_BUFFER, pointer);}
+		public void run(GL3 gl) {Tracker.bufuse(GL.GL_ARRAY_BUFFER, pointer); gl.glVertexAttribIPointer(location.glid() + offset, size, type, stride, pointer);}
 	    });
     }
 
