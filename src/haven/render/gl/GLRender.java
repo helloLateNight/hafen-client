@@ -71,6 +71,19 @@ public class GLRender implements Render, Disposable {
 	}
     }
 
+    public static int glfmtsize(int fmt) {
+	switch(fmt) {
+	case GL.GL_BYTE:           return(1);
+	case GL.GL_UNSIGNED_BYTE:  return(1);
+	case GL.GL_SHORT:          return(2);
+	case GL.GL_UNSIGNED_SHORT: return(2);
+	case GL3.GL_INT:           return(4);
+	case GL3.GL_UNSIGNED_INT:  return(4);
+	default:
+	    throw(new RuntimeException("unknown gl data format: " + fmt));
+	}
+    }
+
     public static int glattribfmt(NumberFormat fmt) {
 	switch(fmt) {
 	case UNORM8:    return(GL.GL_UNSIGNED_BYTE);
@@ -225,6 +238,7 @@ public class GLRender implements Render, Disposable {
 				}
 				buf.flip();
 				gl.glBufferData(GL.GL_ARRAY_BUFFER, jdsz, buf, GL3.GL_STREAM_DRAW);
+				Tracker.bufdata(GL.GL_ARRAY_BUFFER, jdsz);
 			    }
 			});
 		}
@@ -485,9 +499,11 @@ public class GLRender implements Render, Disposable {
 	gl.glReadPixels(area.ul.x, gly, sz.x, sz.y, GLTexture.texefmt1(fmt, fmt, null), GLTexture.texefmt2(fmt, fmt), 0);
 	gl.bglCreate(new GLFence(env, cgl -> {
 		    cgl.glBindBuffer(GL3.GL_PIXEL_PACK_BUFFER, pbo.glid());
+		    Tracker.bindbuf(pbo, GL3.GL_PIXEL_PACK_BUFFER);
 		    ByteBuffer data = Utils.mkbbuf(fmt.size() * area.area()).order(ByteOrder.nativeOrder());
 		    cgl.glGetBufferSubData(GL3.GL_PIXEL_PACK_BUFFER, 0, fmt.size() * area.area(), data);
 		    cgl.glBindBuffer(GL3.GL_PIXEL_PACK_BUFFER, 0);
+		    Tracker.bindbuf(null, GL3.GL_PIXEL_PACK_BUFFER);
 		    pbo.dispose();
 		    GLException.checkfor(cgl, env);
 		    data.rewind();
@@ -535,9 +551,11 @@ public class GLRender implements Render, Disposable {
 	}
 	gl.bglCreate(new GLFence(env, cgl -> {
 		    cgl.glBindBuffer(GL3.GL_PIXEL_PACK_BUFFER, pbo.glid());
+		    Tracker.bindbuf(pbo, GL3.GL_PIXEL_PACK_BUFFER);
 		    ByteBuffer data = Utils.mkbbuf(dsz).order(ByteOrder.nativeOrder());
 		    cgl.glGetBufferSubData(GL3.GL_PIXEL_PACK_BUFFER, 0, dsz, data);
 		    cgl.glBindBuffer(GL3.GL_PIXEL_PACK_BUFFER, 0);
+		    Tracker.bindbuf(null, GL3.GL_PIXEL_PACK_BUFFER);
 		    pbo.dispose();
 		    GLException.checkfor(cgl, env);
 		    data.rewind();

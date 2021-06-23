@@ -257,6 +257,7 @@ public class GLEnvironment implements Environment {
 	    System.err.println();
     }
 
+    private final Tracker debugtrack = new Tracker();
     public void process(GL3 gl) {
 	GLRender prep;
 	Collection<GLRender> copy;
@@ -273,6 +274,8 @@ public class GLEnvironment implements Environment {
 	}
 	try {
 	    synchronized(drawmon) {
+		Tracker prevtrack = Tracker.track.get();
+		Tracker.track.set(debugtrack);
 		checkqueries(gl);
 		if((prep != null) && (prep.gl != null)) {
 		    BufferBGL xf = new BufferBGL(16);
@@ -305,6 +308,7 @@ public class GLEnvironment implements Environment {
 		clean();
 		if(debuglog)
 		    checkdebuglog(gl);
+		Tracker.track.set(prevtrack);
 	    }
 	} catch(Exception e) {
 	    for(Throwable c = e; c != null; c = c.getCause()) {
@@ -317,10 +321,13 @@ public class GLEnvironment implements Environment {
 
     public void finish(GL3 gl) {
 	synchronized(drawmon) {
+	    Tracker prevtrack = Tracker.track.get();
+	    Tracker.track.set(debugtrack);
 	    gl.glFinish();
 	    checkqueries(gl);
 	    if(!queries.isEmpty())
 		throw(new AssertionError("active queries left after glFinish"));
+	    Tracker.track.set(prevtrack);
 	}
     }
 

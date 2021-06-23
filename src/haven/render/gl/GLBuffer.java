@@ -29,7 +29,9 @@ package haven.render.gl;
 import com.jogamp.opengl.*;
 
 public class GLBuffer extends GLObject implements BGL.ID {
-    private int id, state = 0;
+    private int id;
+    int state = 0;
+    long track_sz = -1;
     
     public GLBuffer(GLEnvironment env) {
 	super(env);
