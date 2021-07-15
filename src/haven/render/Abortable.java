@@ -26,10 +26,9 @@
 
 package haven.render;
 
-import haven.Disposable;
+public interface Abortable {
+    public void abort();
 
-public interface DrawList extends RenderList<Rendered>, Disposable {
-    public void draw(Render out);
-
-    public default String stats() {return("");}
+    public static interface Runnable extends java.lang.Runnable, Abortable {}
+    public static interface Consumer<T> extends java.util.function.Consumer<T>, Abortable {}
 }

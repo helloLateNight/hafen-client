@@ -497,7 +497,8 @@ public class GLRender implements Render, Disposable {
 	gl.glPixelStorei(GL.GL_PACK_ALIGNMENT, 1);
 	gl.glReadBuffer(fc.dbufs[n]);
 	gl.glReadPixels(area.ul.x, gly, sz.x, sz.y, GLTexture.texefmt1(fmt, fmt, null), GLTexture.texefmt2(fmt, fmt), 0);
-	gl.bglCreate(new GLFence(env, cgl -> {
+	gl.bglCreate(new GLFence(env, new Abortable.Consumer<GL3>() {
+		public void accept(GL3 cgl) {
 		    Tracker.bindbuf(pbo, GL3.GL_PIXEL_PACK_BUFFER);
 		    cgl.glBindBuffer(GL3.GL_PIXEL_PACK_BUFFER, pbo.glid());
 		    ByteBuffer data = Utils.mkbbuf(fmt.size() * area.area()).order(ByteOrder.nativeOrder());
@@ -521,7 +522,13 @@ public class GLRender implements Render, Disposable {
 			}
 		    }
 		    callback.accept(data);
-	}));
+		}
+
+		public void abort() {
+		    if(callback instanceof Abortable)
+			((Abortable)callback).abort();
+		}
+	    }));
 	gl.glBindBuffer(GL3.GL_PIXEL_PACK_BUFFER, null);
     }
 
@@ -549,7 +556,8 @@ public class GLRender implements Render, Disposable {
 	} else {
 	    throw(new NotImplemented("texture-get for " + img.tex.getClass()));
 	}
-	gl.bglCreate(new GLFence(env, cgl -> {
+	gl.bglCreate(new GLFence(env, new Abortable.Consumer<GL3>() {
+		public void accept(GL3 cgl) {
 		    Tracker.bindbuf(pbo, GL3.GL_PIXEL_PACK_BUFFER);
 		    cgl.glBindBuffer(GL3.GL_PIXEL_PACK_BUFFER, pbo.glid());
 		    ByteBuffer data = Utils.mkbbuf(dsz).order(ByteOrder.nativeOrder());
@@ -575,7 +583,13 @@ public class GLRender implements Render, Disposable {
 			}
 		    }
 		    callback.accept(data);
-	}));
+		}
+
+		public void abort() {
+		    if(callback instanceof Abortable)
+			((Abortable)callback).abort();
+		}
+	    }));
 	gl.glBindBuffer(GL3.GL_PIXEL_PACK_BUFFER, null);
     }
 
@@ -584,7 +598,13 @@ public class GLRender implements Render, Disposable {
     }
 
     public void fence(Runnable callback) {
-	gl().bglSubmit(g -> callback.run());
+	gl().bglSubmit(new BGL.Request() {
+		public void run(GL3 g) {callback.run();}
+		public void abort() {
+		    if(callback instanceof Abortable)
+			((Abortable)callback).abort();
+		}
+	    });
     }
 
     public void submit(BGL.Request req) {
